@@ -1,0 +1,49 @@
+pragma solidity ^0.5.7;
+contract Cogere{
+    mapping (address => uint) organisateurs;
+
+    constructor() public {
+      organisateurs[msg.sender] = 100;   
+    }
+   
+    function transfererOrga(address orga, uint parts) public { 
+       organisateurs[msg.sender] -=parts;
+       organisateurs[orga] += parts;
+    }
+   
+    function estOrga(address orga) public view returns (bool){ 
+        require(organisateurs[orga] != 0);
+        return true;
+    }
+}
+
+contract CagnotteFestival is Cogere {
+    uint private depensesTotales;
+    string[] sponsors;
+    uint placesRestantes = 500;
+    mapping (address => bool) festivaliers;
+
+    function comptabiliserDepense(uint montant) private {
+      depensesTotales += montant;
+    }    
+
+    function acheterTicket() public payable {
+        require(msg.value>= 500 finney,"Place à 0.5 Ethers");
+        require(placesRestantes>0,"Plus de places !");
+        festivaliers[msg.sender]=true;
+        placesRestantes--;
+      }
+    
+    
+    function payer(address payable destinataire, uint montant) public {
+        require(estOrga(msg.sender));
+        require(destinataire != address(0));
+        require(montant > 0);
+        destinataire.transfer(montant);
+      }
+
+    function sponsoriser(string memory nom) public payable {
+        require(msg.value >= 30 ether);
+        sponsors.push(nom);
+    }
+}
